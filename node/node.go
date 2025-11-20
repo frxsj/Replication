@@ -5,7 +5,8 @@ import (
 	"context"
 	"net"
 	"log"
-	
+	"fmt"
+	"strconv"
 
 	"google.golang.org/grpc"
 )
@@ -14,18 +15,30 @@ import (
 //Like the alpha dawgs
 
 type gangnamStyle struct {
-	proto.UnimplementedGangnameStyleServer
+	proto.UnimplementedGangnamStyleServer
+	portPack []string
+	port string
 	amIsILeader bool           //Which replica is the leader
+	highestBid int64
+	winner string
 }
-
-var wolfPack []gangnamStyle // Global slice of all nodes
 
 func main() {
 	server := &gangnamStyle{}
-	
+
+	var portPack []string{
+	"localhost:5005",
+    "localhost:5006", 
+    "localhost:5007",
+
+
+
+	for _, wolf := range wolfPack{
+		fmt.Println(wolf.amIsILeader)
+	}
 	log.Println("[Server] Starting server...")
-	server.start_server(":5005")
-	wolfPack = append(wolfPack, *server)
+	server.start_server(port)
+	
 }
 
 func (gangy *gangnamStyle) forwardToAlpha(req *proto.Request) {
@@ -53,7 +66,7 @@ func (gangy *gangnamStyle) start_server(port string){
 		log.Fatalf("Did not work")
 	}
 
-	proto.RegisterGangnameStyleServer(node, gangy)
+	proto.RegisterGangnamStyleServer(node, gangy)
 
 	log.Println("Server startup was successful at port" + port)
 	
@@ -61,7 +74,9 @@ func (gangy *gangnamStyle) start_server(port string){
 }
 
 func (gangy *gangnamStyle) bid (ctx context.Context, req *proto.Request){
-
+	fmt.Println("you made a bid my drilla")
 }
 
-func(gangy gangnamStyle) result (ctx context.Context, req *proto.PlsResult)
+func(gangy gangnamStyle) result (ctx context.Context, req *proto.PlsResult){
+	fmt.Println("someone won the auction")
+}

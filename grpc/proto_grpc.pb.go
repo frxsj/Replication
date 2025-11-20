@@ -19,139 +19,139 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GangnameStyle_Bid_FullMethodName    = "/gangnameStyle/bid"
-	GangnameStyle_Result_FullMethodName = "/gangnameStyle/result"
+	GangnamStyle_Bid_FullMethodName    = "/gangnamStyle/bid"
+	GangnamStyle_Result_FullMethodName = "/gangnamStyle/result"
 )
 
-// GangnameStyleClient is the client API for GangnameStyle service.
+// GangnamStyleClient is the client API for GangnamStyle service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type GangnameStyleClient interface {
+type GangnamStyleClient interface {
 	Bid(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
 	Result(ctx context.Context, in *PlsResult, opts ...grpc.CallOption) (*Outcome, error)
 }
 
-type gangnameStyleClient struct {
+type gangnamStyleClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewGangnameStyleClient(cc grpc.ClientConnInterface) GangnameStyleClient {
-	return &gangnameStyleClient{cc}
+func NewGangnamStyleClient(cc grpc.ClientConnInterface) GangnamStyleClient {
+	return &gangnamStyleClient{cc}
 }
 
-func (c *gangnameStyleClient) Bid(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
+func (c *gangnamStyleClient) Bid(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
-	err := c.cc.Invoke(ctx, GangnameStyle_Bid_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, GangnamStyle_Bid_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *gangnameStyleClient) Result(ctx context.Context, in *PlsResult, opts ...grpc.CallOption) (*Outcome, error) {
+func (c *gangnamStyleClient) Result(ctx context.Context, in *PlsResult, opts ...grpc.CallOption) (*Outcome, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Outcome)
-	err := c.cc.Invoke(ctx, GangnameStyle_Result_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, GangnamStyle_Result_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// GangnameStyleServer is the server API for GangnameStyle service.
-// All implementations must embed UnimplementedGangnameStyleServer
+// GangnamStyleServer is the server API for GangnamStyle service.
+// All implementations must embed UnimplementedGangnamStyleServer
 // for forward compatibility.
-type GangnameStyleServer interface {
+type GangnamStyleServer interface {
 	Bid(context.Context, *Request) (*Response, error)
 	Result(context.Context, *PlsResult) (*Outcome, error)
-	mustEmbedUnimplementedGangnameStyleServer()
+	mustEmbedUnimplementedGangnamStyleServer()
 }
 
-// UnimplementedGangnameStyleServer must be embedded to have
+// UnimplementedGangnamStyleServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedGangnameStyleServer struct{}
+type UnimplementedGangnamStyleServer struct{}
 
-func (UnimplementedGangnameStyleServer) Bid(context.Context, *Request) (*Response, error) {
+func (UnimplementedGangnamStyleServer) Bid(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Bid not implemented")
 }
-func (UnimplementedGangnameStyleServer) Result(context.Context, *PlsResult) (*Outcome, error) {
+func (UnimplementedGangnamStyleServer) Result(context.Context, *PlsResult) (*Outcome, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Result not implemented")
 }
-func (UnimplementedGangnameStyleServer) mustEmbedUnimplementedGangnameStyleServer() {}
-func (UnimplementedGangnameStyleServer) testEmbeddedByValue()                       {}
+func (UnimplementedGangnamStyleServer) mustEmbedUnimplementedGangnamStyleServer() {}
+func (UnimplementedGangnamStyleServer) testEmbeddedByValue()                      {}
 
-// UnsafeGangnameStyleServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to GangnameStyleServer will
+// UnsafeGangnamStyleServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to GangnamStyleServer will
 // result in compilation errors.
-type UnsafeGangnameStyleServer interface {
-	mustEmbedUnimplementedGangnameStyleServer()
+type UnsafeGangnamStyleServer interface {
+	mustEmbedUnimplementedGangnamStyleServer()
 }
 
-func RegisterGangnameStyleServer(s grpc.ServiceRegistrar, srv GangnameStyleServer) {
-	// If the following call pancis, it indicates UnimplementedGangnameStyleServer was
+func RegisterGangnamStyleServer(s grpc.ServiceRegistrar, srv GangnamStyleServer) {
+	// If the following call pancis, it indicates UnimplementedGangnamStyleServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&GangnameStyle_ServiceDesc, srv)
+	s.RegisterService(&GangnamStyle_ServiceDesc, srv)
 }
 
-func _GangnameStyle_Bid_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GangnamStyle_Bid_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GangnameStyleServer).Bid(ctx, in)
+		return srv.(GangnamStyleServer).Bid(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GangnameStyle_Bid_FullMethodName,
+		FullMethod: GangnamStyle_Bid_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GangnameStyleServer).Bid(ctx, req.(*Request))
+		return srv.(GangnamStyleServer).Bid(ctx, req.(*Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GangnameStyle_Result_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GangnamStyle_Result_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PlsResult)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GangnameStyleServer).Result(ctx, in)
+		return srv.(GangnamStyleServer).Result(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GangnameStyle_Result_FullMethodName,
+		FullMethod: GangnamStyle_Result_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GangnameStyleServer).Result(ctx, req.(*PlsResult))
+		return srv.(GangnamStyleServer).Result(ctx, req.(*PlsResult))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// GangnameStyle_ServiceDesc is the grpc.ServiceDesc for GangnameStyle service.
+// GangnamStyle_ServiceDesc is the grpc.ServiceDesc for GangnamStyle service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var GangnameStyle_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "gangnameStyle",
-	HandlerType: (*GangnameStyleServer)(nil),
+var GangnamStyle_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "gangnamStyle",
+	HandlerType: (*GangnamStyleServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "bid",
-			Handler:    _GangnameStyle_Bid_Handler,
+			Handler:    _GangnamStyle_Bid_Handler,
 		},
 		{
 			MethodName: "result",
-			Handler:    _GangnameStyle_Result_Handler,
+			Handler:    _GangnamStyle_Result_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

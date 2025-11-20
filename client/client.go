@@ -15,24 +15,24 @@ import (
 )
 
 type gangClient struct {
-	client proto.GangnameStyleClient
+	client proto.GangnamStyleClient
 	id string
 	
 }
 
 func main() {
-	gangClient{
-		client : connectClient()
+	gang := gangClient{
+		client : connectClient(),
 	}  // How do we randomize the ID?
 
 	reader := bufio.NewReader(os.Stdin)
-	gangClient.client.initiateAuctionTalk(reader)
+	gang.initiateAuctionTalk(reader)
 
 }
 
-func (gang *GangnameStyleClient) initiateAuctionTalk(reader *bufio.Reader) {
-	fmt.Println("Welcome to the auction!")
-	fmt.Println("Today's item is: one (1) Arla Cultura, strawberry flavor")
+func (gang *gangClient) initiateAuctionTalk(reader *bufio.Reader) {
+	fmt.Println("Welcome to the auction!😎")
+	fmt.Println("Today's item is: one (1) Arla Cultura, strawberry flavor🍶🍓😎")
 	fmt.Println("Type /bid and the amount you would like to bid on the item!")
 	fmt.Println("Type /result to get the current status of the auction.")
 
@@ -44,20 +44,23 @@ func (gang *GangnameStyleClient) initiateAuctionTalk(reader *bufio.Reader) {
 			plsres := &proto.PlsResult{
 				ClientID: gang.id,
 			}
-			gang.Result(context.Background(),plsres)
+			response, err := gang.client.Result(context.Background(), plsres)
+			if (err != nil){
+				fmt.Println("rip😎")
+			}
+			fmt.Println(response)
 		}
 		
 		if strings.HasPrefix(message, "/bid") {
 			var bid = strings.Split(message, " ")
 			if(len(bid)> 2) {
-				fmt.Println("[Failure] Too many words.")
+				fmt.Println("[Failure] Too many words...")
 			} else if(len(bid) <= 1) {
 				fmt.Println("[Failure] Don't forget the amount!")
 			} else {
 				amount, err := strconv.ParseInt(bid[1], 10, 64) // String, Base 10, int64
 				if(err != nil) {
-					fmt.Println("You cant do that my drilla.")
-					return
+					fmt.Println("[Client] You cant do that my drilla 😎")
 				}
 				plsBid := &proto.Request{
 					ClientID : gang.id,
@@ -67,7 +70,7 @@ func (gang *GangnameStyleClient) initiateAuctionTalk(reader *bufio.Reader) {
 				if err != nil {
 					fmt.Println("[Client] Failed to send!")
 				}
-				return response
+				fmt.Println(response)
 			}
 
 		}
@@ -76,16 +79,12 @@ func (gang *GangnameStyleClient) initiateAuctionTalk(reader *bufio.Reader) {
 
 }
 
-func connectClient()(proto.NewGangnameStyleClient) {
+func connectClient()(proto.GangnamStyleClient) {
 	conn, err := grpc.NewClient("localhost:5005", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Not working")
 	}
 
-	client := proto.NewGangnameStyleClient(conn)
+	client := proto.NewGangnamStyleClient(conn)
 	return client
-}
-
-func (c *gangClient) Result(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
-	return &proto.Response{}, nil
 }

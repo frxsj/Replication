@@ -19,7 +19,7 @@ message Outcome{
     int64 winnerAmount = 2; // The highest bid
 }
 
-service gangnameStyle{
+service gangnamStyle{
     rpc bid(Request) returns (Response){};
     rpc result(plsResult) returns (Outcome){};
     
