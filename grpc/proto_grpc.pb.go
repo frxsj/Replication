@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	GangnamStyle_Bid_FullMethodName    = "/gangnamStyle/bid"
 	GangnamStyle_Result_FullMethodName = "/gangnamStyle/result"
+	GangnamStyle_Bully_FullMethodName  = "/gangnamStyle/bully"
 )
 
 // GangnamStyleClient is the client API for GangnamStyle service.
@@ -29,6 +30,7 @@ const (
 type GangnamStyleClient interface {
 	Bid(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
 	Result(ctx context.Context, in *PlsResult, opts ...grpc.CallOption) (*Outcome, error)
+	Bully(ctx context.Context, in *BullyRequest, opts ...grpc.CallOption) (*BullyResponse, error)
 }
 
 type gangnamStyleClient struct {
@@ -59,12 +61,23 @@ func (c *gangnamStyleClient) Result(ctx context.Context, in *PlsResult, opts ...
 	return out, nil
 }
 
+func (c *gangnamStyleClient) Bully(ctx context.Context, in *BullyRequest, opts ...grpc.CallOption) (*BullyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BullyResponse)
+	err := c.cc.Invoke(ctx, GangnamStyle_Bully_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GangnamStyleServer is the server API for GangnamStyle service.
 // All implementations must embed UnimplementedGangnamStyleServer
 // for forward compatibility.
 type GangnamStyleServer interface {
 	Bid(context.Context, *Request) (*Response, error)
 	Result(context.Context, *PlsResult) (*Outcome, error)
+	Bully(context.Context, *BullyRequest) (*BullyResponse, error)
 	mustEmbedUnimplementedGangnamStyleServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedGangnamStyleServer) Bid(context.Context, *Request) (*Response
 }
 func (UnimplementedGangnamStyleServer) Result(context.Context, *PlsResult) (*Outcome, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Result not implemented")
+}
+func (UnimplementedGangnamStyleServer) Bully(context.Context, *BullyRequest) (*BullyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Bully not implemented")
 }
 func (UnimplementedGangnamStyleServer) mustEmbedUnimplementedGangnamStyleServer() {}
 func (UnimplementedGangnamStyleServer) testEmbeddedByValue()                      {}
@@ -138,6 +154,24 @@ func _GangnamStyle_Result_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GangnamStyle_Bully_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BullyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GangnamStyleServer).Bully(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GangnamStyle_Bully_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GangnamStyleServer).Bully(ctx, req.(*BullyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GangnamStyle_ServiceDesc is the grpc.ServiceDesc for GangnamStyle service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var GangnamStyle_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "result",
 			Handler:    _GangnamStyle_Result_Handler,
+		},
+		{
+			MethodName: "bully",
+			Handler:    _GangnamStyle_Bully_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

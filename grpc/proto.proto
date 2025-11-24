@@ -19,9 +19,18 @@ message Outcome{
     int64 winnerAmount = 2; // The highest bid
 }
 
+message BullyRequest{
+    string senderport = 1;
+}
+
+message BullyResponse{
+    string alphaPort = 1;
+}
+
 service gangnamStyle{
     rpc bid(Request) returns (Response){};
     rpc result(plsResult) returns (Outcome){};
+    rpc bully(BullyRequest) returns (BullyResponse){};
     
 }
 // export PATH="$PATH:$(go env GOPATH)/bin"
