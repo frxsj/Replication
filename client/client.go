@@ -15,127 +15,86 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type AuctionClient struct {
-	client proto.AuctionServiceClient
-	conn   *grpc.ClientConn
+type gangClient struct {
+	client proto.GangnamStyleClient
 	id     string
 }
 
 func main() {
-	client := &AuctionClient{}
-	client.connectToServer()
-	defer client.conn.Close()
+	gang := gangClient{
+		client: connectClient(),
+		id:     "client-" + strconv.Itoa(int(time.Now().Unix())),
+	}
 
-	// Generate unique client ID
-	client.id = fmt.Sprintf("client-%d", time.Now().UnixNano())
+	fmt.Printf("Client ID: %s\n", gang.id)
 
 	reader := bufio.NewReader(os.Stdin)
-	client.startAuctionInterface(reader)
+	gang.initiateAuctionTalk(reader)
 }
 
-func (c *AuctionClient) connectToServer() {
-	// Try connecting to different ports until successful
-	ports := []string{":50002", ":50003", ":50004", ":50005"}
+func (gang *gangClient) initiateAuctionTalk(reader *bufio.Reader) {
+	fmt.Println("Welcome to the auction!😎")
+	fmt.Println("Today's item is: one (1) Arla Cultura, strawberry flavor🍶🍓😎")
+	fmt.Println("Type /bid and the amount you would like to bid on the item!")
+	fmt.Println("Type /result to get the current status of the auction.")
+
+	for {
+		message, _ := reader.ReadString('\n')
+		message = strings.TrimSpace(message)
+
+		if message == "/result" {
+			plsres := &proto.PlsResult{
+				ClientID: gang.id,
+			}
+			response, err := gang.client.Result(context.Background(), plsres)
+			if err != nil {
+				fmt.Println("rip😎")
+			} else {
+				fmt.Printf("Auction result - Winner: %s, Amount: %d\n", response.Winner, response.WinnerAmount)
+			}
+		}
+
+		if strings.HasPrefix(message, "/bid") {
+			var bid = strings.Split(message, " ")
+			if len(bid) > 2 {
+				fmt.Println("[Failure] Too many words...")
+			} else if len(bid) <= 1 {
+				fmt.Println("[Failure] Don't forget the amount!")
+			} else {
+				amount, err := strconv.ParseInt(bid[1], 10, 64)
+				if err != nil {
+					fmt.Println("[Client] You cant do that my drilla 😎")
+				} else {
+					plsBid := &proto.Request{
+						ClientID: gang.id,
+						Amount:   amount,
+					}
+					response, err := gang.client.Bid(context.Background(), plsBid)
+					if err != nil {
+						fmt.Println("[Client] Failed to send!")
+					} else {
+						fmt.Println(response.Ack)
+					}
+				}
+			}
+		}
+
+	}
+}
+
+func connectClient() proto.GangnamStyleClient {
+	// Try different ports
+	ports := []string{":50002", ":50003", ":50004"}
 
 	for _, port := range ports {
 		conn, err := grpc.NewClient("localhost"+port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err == nil {
-			c.conn = conn
-			c.client = proto.NewAuctionServiceClient(conn)
-			log.Printf("Connected to server on port %s", port)
-			return
+			fmt.Printf("Connected to server on port %s\n", port)
+			client := proto.NewGangnamStyleClient(conn)
+			return client
 		}
 	}
 
-	log.Fatal("Could not connect to any server")
-}
-
-func (c *AuctionClient) startAuctionInterface(reader *bufio.Reader) {
-	fmt.Println("=== Distributed Auction System ===")
-	fmt.Println("Available commands:")
-	fmt.Println("/bid <amount> - Place a bid")
-	fmt.Println("/result - Check auction status")
-	fmt.Println("/quit - Exit")
-	fmt.Println("==================================")
-
-	for {
-		fmt.Print("> ")
-		input, _ := reader.ReadString('\n')
-		input = strings.TrimSpace(input)
-
-		switch {
-		case input == "/quit":
-			fmt.Println("Goodbye!")
-			return
-
-		case input == "/result":
-			c.getAuctionResult()
-
-		case strings.HasPrefix(input, "/bid "):
-			parts := strings.Split(input, " ")
-			if len(parts) != 2 {
-				fmt.Println("Usage: /bid <amount>")
-				continue
-			}
-
-			amount, err := strconv.ParseInt(parts[1], 10, 64)
-			if err != nil {
-				fmt.Println("Invalid amount. Please enter a valid number.")
-				continue
-			}
-
-			c.placeBid(amount)
-
-		default:
-			fmt.Println("Unknown command. Use /bid, /result, or /quit")
-		}
-	}
-}
-
-func (c *AuctionClient) placeBid(amount int64) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	req := &proto.BidRequest{
-		ClientID: c.id,
-		Amount:   amount,
-	}
-
-	response, err := c.client.Bid(ctx, req)
-	if err != nil {
-		fmt.Printf("Error placing bid: %v\n", err)
-		// Try reconnecting to another server
-		c.connectToServer()
-		return
-	}
-
-	fmt.Printf("Bid response: %s\n", response.Ack)
-}
-
-func (c *AuctionClient) getAuctionResult() {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	req := &proto.ResultRequest{
-		ClientID: c.id,
-	}
-
-	response, err := c.client.Result(ctx, req)
-	if err != nil {
-		fmt.Printf("Error getting result: %v\n", err)
-		// Try reconnecting to another server
-		c.connectToServer()
-		return
-	}
-
-	if response.IsAuctionOver {
-		fmt.Printf("=== AUCTION FINISHED ===\n")
-		fmt.Printf("Winner: %s\n", response.Winner)
-		fmt.Printf("Winning Bid: %d\n", response.HighestBid)
-	} else {
-		fmt.Printf("=== AUCTION ONGOING ===\n")
-		fmt.Printf("Current Highest Bid: %d\n", response.HighestBid)
-		fmt.Printf("Current Leader: %s\n", response.Winner)
-		fmt.Printf("Time remaining: estimate ~%d seconds\n", 100-int64(time.Since(time.Now().Add(-100*time.Second)).Seconds()))
-	}
+	log.Fatalf("Not working - could not connect to any server")
+	return nil
 }

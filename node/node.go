@@ -1,6 +1,7 @@
 package main
 
 import (
+	proto "ITU/grpc"
 	"bufio"
 	"context"
 	"fmt"
@@ -10,16 +11,12 @@ import (
 	"sync"
 	"time"
 
-	//"strconv"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
-	proto "ITU/grpc"
 )
 
-type AuctionServer struct {
-	proto.UnimplementedAuctionServiceServer
+type gangnamStyle struct {
+	proto.UnimplementedGangnamStyleServer
 	mu sync.RWMutex
 
 	// Auction state
@@ -31,20 +28,22 @@ type AuctionServer struct {
 
 	// Node management
 	port            string
-	isLeader        bool
+	amIsILeader     bool
 	leaderPort      string
-	replicas        map[string]proto.AuctionServiceClient
+	replicas        map[string]proto.GangnamStyleClient
+	biddersMap      map[string]*grpc.ClientConn
 	nodeConnections map[string]*grpc.ClientConn
 }
 
 func main() {
-	log.Println("[Server] Starting auction server...")
-	startServer()
+	log.Println("[Server] Starting server...")
+	start_server()
 }
 
-func startServer() {
-	server := &AuctionServer{
-		replicas:         make(map[string]proto.AuctionServiceClient),
+func start_server() {
+	gangy := &gangnamStyle{
+		replicas:         make(map[string]proto.GangnamStyleClient),
+		biddersMap:       make(map[string]*grpc.ClientConn),
 		nodeConnections:  make(map[string]*grpc.ClientConn),
 		highestBid:       0,
 		highestBidder:    "",
@@ -53,345 +52,240 @@ func startServer() {
 		auctionDuration:  100 * time.Second,
 	}
 
-	listener := server.getAvailableListener()
-	grpcServer := grpc.NewServer()
-	proto.RegisterAuctionServiceServer(grpcServer, server)
+	node := grpc.NewServer()
+	proto.RegisterGangnamStyleServer(node, gangy)
+	listener := gangy.get_available_listener()
 
 	go func() {
-		log.Printf("Server starting on port %s", server.port)
-		if err := grpcServer.Serve(listener); err != nil {
-			log.Fatalf("Failed to serve: %v", err)
+		if err := node.Serve(listener); err != nil {
+			log.Fatalf("womp womp): %v", err)
 		}
 	}()
 
-	fmt.Printf("Auction started! It will run for %v\n", server.auctionDuration)
-	fmt.Println("Type 'connect' to connect to other replicas")
-
+	fmt.Println("Once all replicas have been started type 'arla cultura 4eva<3<3'")
 	scanner := bufio.NewScanner(os.Stdin)
+
 	for scanner.Scan() {
-		if scanner.Text() == "connect" {
-			server.connectToReplicas()
-			server.startLeaderElection()
+		if scanner.Text() == "arla cultura 4eva<3<3" {
+			gangy.connect_nodes()
+			gangy.selectGangLeader()
 			break
 		}
 	}
 
-	go server.monitorAuctionTimeout()
-	go server.monitorLeader()
-	go server.monitorAllNodes() // New: monitor all nodes, not just leader
+	go gangy.monitorAuctionTimeout()
+	go gangy.monitorLeader()
 
+	// Keep the server running
 	select {}
 }
 
-func (s *AuctionServer) getAvailableListener() net.Listener {
+func (gangy *gangnamStyle) get_available_listener() net.Listener {
 	ports := []string{":50002", ":50003", ":50004"}
 
 	for _, port := range ports {
 		listener, err := net.Listen("tcp", port)
 		if err == nil {
-			s.port = port
+			fmt.Println("got port", port)
+			gangy.port = port
 			return listener
 		}
 	}
 
-	log.Fatal("No available ports found")
+	log.Fatalf("left a lot of crumbs")
 	return nil
 }
 
-func (s *AuctionServer) connectToReplicas() {
-	log.Println("Connecting to replica nodes...")
-	allPorts := []string{":50002", ":50003", ":50004"}
+func (gangy *gangnamStyle) connect_nodes() {
+	fmt.Println("connecting the reaplicas...")
+	ports := []string{":50002", ":50003", ":50004"}
 
-	for _, port := range allPorts {
-		if port == s.port {
+	for _, port := range ports {
+		if port == gangy.port {
 			continue
 		}
 
-		conn, err := grpc.NewClient("localhost"+port, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		conn, err := grpc.NewClient(port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
-			log.Printf("No server on port %s", port)
+			log.Printf("Failed to slay to %s: %v", port, err)
 			continue
 		}
 
-		client := proto.NewAuctionServiceClient(conn)
-		s.replicas[port] = client
-		s.nodeConnections[port] = conn
-		log.Printf("Connected to replica on port %s", port)
+		client := proto.NewGangnamStyleClient(conn)
+		gangy.replicas[port] = client
+		gangy.nodeConnections[port] = conn
+		fmt.Printf("Connected to replica on port %s\n", port)
 	}
 }
 
-// FIXED: Proper leader election that excludes failed nodes
-func (s *AuctionServer) startLeaderElection() {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (gangy *gangnamStyle) selectGangLeader() {
+	fmt.Println("banke banke på")
 
-	log.Printf("Starting leader election. Available nodes: %v", s.getAvailablePorts())
+	gangy.mu.Lock()
+	defer gangy.mu.Unlock()
 
-	// Start with self as candidate
-	candidates := []string{s.port}
+	// Check which nodes are actually responsive
+	responsiveNodes := []string{gangy.port} // Always include self
 
-	// Add all responsive replicas
-	for port, client := range s.replicas {
+	for port, client := range gangy.replicas {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-		_, err := client.Result(ctx, &proto.ResultRequest{ClientID: "election-check"})
+		_, err := client.Result(ctx, &proto.PlsResult{ClientID: "election-check"})
 		cancel()
 
 		if err == nil {
-			candidates = append(candidates, port)
-			log.Printf("Node %s is responsive, adding to election", port)
+			responsiveNodes = append(responsiveNodes, port)
+			fmt.Printf("Node %s is responsive\n", port)
 		} else {
-			log.Printf("Node %s is not responsive, removing from candidates", port)
+			fmt.Printf("Node %s is NOT responsive - removing from election\n", port)
 			// Remove failed node
-			delete(s.replicas, port)
-			if conn, exists := s.nodeConnections[port]; exists {
+			delete(gangy.replicas, port)
+			if conn, exists := gangy.nodeConnections[port]; exists {
 				conn.Close()
-				delete(s.nodeConnections, port)
+				delete(gangy.nodeConnections, port)
 			}
 		}
 	}
 
-	if len(candidates) == 0 {
-		log.Printf("No candidates found, something is wrong")
-		return
-	}
-
 	// Find highest port among responsive nodes
-	newLeader := candidates[0]
-	for _, candidate := range candidates {
-		if candidate > newLeader {
-			newLeader = candidate
+	newLeader := responsiveNodes[0]
+	for _, node := range responsiveNodes {
+		if node > newLeader {
+			newLeader = node
 		}
 	}
 
 	// Update leadership
-	s.leaderPort = newLeader
-	s.isLeader = (s.port == newLeader)
+	gangy.leaderPort = newLeader
+	gangy.amIsILeader = (gangy.port == newLeader)
 
-	if s.isLeader {
-		log.Printf("🎉 Node %s elected as new leader!", s.port)
+	if gangy.amIsILeader {
+		fmt.Printf("🎉 The new alpha has been chosen🐺 on port %s\n", gangy.port)
 	} else {
-		log.Printf("Node %s following leader %s", s.port, s.leaderPort)
+		fmt.Printf("Node %s following leader %s\n", gangy.port, gangy.leaderPort)
 	}
 }
 
-// NEW: Monitor all nodes, not just the leader
-func (s *AuctionServer) monitorAllNodes() {
-	ticker := time.NewTicker(3 * time.Second) // Check more frequently
+func (gangy *gangnamStyle) monitorLeader() {
+	ticker := time.NewTicker(3 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		s.mu.Lock()
-
-		// Check if current leader is still responsive
-		if s.leaderPort != "" && s.leaderPort != s.port {
-			leaderClient, exists := s.replicas[s.leaderPort]
+		if !gangy.amIsILeader && gangy.leaderPort != "" {
+			leaderClient, exists := gangy.replicas[gangy.leaderPort]
 			if exists {
 				ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-				_, err := leaderClient.Result(ctx, &proto.ResultRequest{ClientID: "health-check"})
+				_, err := leaderClient.Result(ctx, &proto.PlsResult{ClientID: "health-check"})
 				cancel()
 
 				if err != nil {
-					log.Printf("Leader %s is down! Starting election...", s.leaderPort)
-					s.mu.Unlock()
-					s.startLeaderElection()
-					continue
+					fmt.Printf("Leader %s appears to be down! Starting election...\n", gangy.leaderPort)
+					gangy.selectGangLeader()
 				}
 			} else {
-				// Leader not in our list, need election
-				log.Printf("Leader %s not in replica list, starting election...", s.leaderPort)
-				s.mu.Unlock()
-				s.startLeaderElection()
-				continue
+				// Leader not in our replica list anymore
+				fmt.Printf("Leader %s not in replica list! Starting election...\n", gangy.leaderPort)
+				gangy.selectGangLeader()
 			}
 		}
-
-		s.mu.Unlock()
 	}
 }
 
-// Get list of available ports for logging
-func (s *AuctionServer) getAvailablePorts() []string {
-	ports := []string{s.port}
-	for port := range s.replicas {
-		ports = append(ports, port)
-	}
-	return ports
-}
+func (gangy *gangnamStyle) Bid(ctx context.Context, req *proto.Request) (*proto.Response, error) {
+	gangy.mu.Lock()
+	defer gangy.mu.Unlock()
 
-func (s *AuctionServer) monitorLeader() {
-	// This is now handled by monitorAllNodes
-	// Keeping it empty to avoid conflicts
-	ticker := time.NewTicker(1 * time.Hour)
-	defer ticker.Stop()
-	for range ticker.C {
-	}
-}
+	fmt.Printf("Received bid: %d from client %s\n", req.Amount, req.ClientID)
 
-func (s *AuctionServer) Bid(ctx context.Context, req *proto.BidRequest) (*proto.BidResponse, error) {
-	s.mu.RLock()
-
-	// If I'm not the leader, forward to leader
-	if !s.isLeader && s.leaderPort != "" && s.leaderPort != s.port {
-		leaderClient, exists := s.replicas[s.leaderPort]
-		s.mu.RUnlock()
-
-		if exists {
-			log.Printf("Forwarding bid to leader %s", s.leaderPort)
-			resp, err := leaderClient.Bid(ctx, req)
-			if err != nil {
-				// Leader might be down, start election
-				log.Printf("Failed to forward to leader %s: %v", s.leaderPort, err)
-				s.startLeaderElection()
-				// Retry the bid after election
-				return s.Bid(ctx, req)
-			}
-			return resp, nil
-		} else {
-			// Leader not available, start election
-			log.Printf("Leader %s not available, starting election", s.leaderPort)
-			s.startLeaderElection()
-			// Retry the bid after election
-			return s.Bid(ctx, req)
-		}
-	} else {
-		s.mu.RUnlock()
-	}
-
-	// If we get here, we are the leader
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	log.Printf("Processing bid locally as leader: %d from client %s", req.Amount, req.ClientID)
-
-	// Check auction state
-	elapsed := time.Since(s.auctionStartTime)
-	if s.isAuctionOver || elapsed >= s.auctionDuration {
-		s.isAuctionOver = true
-		return &proto.BidResponse{Ack: "exception: Auction has ended"}, nil
+	// Check if auction is over
+	elapsed := time.Since(gangy.auctionStartTime)
+	if gangy.isAuctionOver || elapsed >= gangy.auctionDuration {
+		gangy.isAuctionOver = true
+		return &proto.Response{Ack: "exception: Auction has ended"}, nil
 	}
 
 	// Validate bid
-	if req.Amount <= s.highestBid {
-		return &proto.BidResponse{Ack: "fail: Bid must be higher than current highest bid"}, nil
+	if req.Amount <= gangy.highestBid {
+		return &proto.Response{Ack: "fail: Bid must be higher than current highest bid"}, nil
 	}
 
 	// Accept bid
-	s.highestBid = req.Amount
-	s.highestBidder = req.ClientID
+	gangy.highestBid = req.Amount
+	gangy.highestBidder = req.ClientID
 
-	log.Printf("New highest bid: %d from client %s", req.Amount, req.ClientID)
+	fmt.Printf("New highest bid: %d from client %s\n", req.Amount, req.ClientID)
 
-	// Replicate to other nodes
-	s.replicateBidToReplicas(req.ClientID, req.Amount)
+	// Replicate to other nodes if leader
+	if gangy.amIsILeader {
+		gangy.forwardToAlpha(req)
+	}
 
-	return &proto.BidResponse{Ack: "success: Bid accepted"}, nil
+	return &proto.Response{Ack: "Your bet was registered, my drilla😎"}, nil
 }
 
-func (s *AuctionServer) Result(ctx context.Context, req *proto.ResultRequest) (*proto.ResultResponse, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+func (gangy *gangnamStyle) Result(ctx context.Context, req *proto.PlsResult) (*proto.Outcome, error) {
+	gangy.mu.RLock()
+	defer gangy.mu.RUnlock()
 
-	elapsed := time.Since(s.auctionStartTime)
-
-	response := &proto.ResultResponse{
-		HighestBid:    s.highestBid,
-		Winner:        s.highestBidder,
-		IsAuctionOver: s.isAuctionOver,
+	outcome := &proto.Outcome{
+		Winner:       gangy.highestBidder,
+		WinnerAmount: gangy.highestBid,
 	}
 
-	if s.isAuctionOver || elapsed >= s.auctionDuration {
-		response.Status = "finished"
-	} else {
-		response.Status = "ongoing"
-	}
-
-	return response, nil
+	return outcome, nil
 }
 
-func (s *AuctionServer) Replicate(ctx context.Context, req *proto.ReplicationRequest) (*proto.ReplicationResponse, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (gangy *gangnamStyle) Bully(ctx context.Context, b_req *proto.BullyRequest) (*proto.BullyResponse, error) {
+	fmt.Println("The bullying has begun!")
 
-	if req.Operation == "bid" {
-		if req.Amount > s.highestBid {
-			s.highestBid = req.Amount
-			s.highestBidder = req.ClientID
-			log.Printf("Replicated bid: %d from client %s", req.Amount, req.ClientID)
-		}
-	} else if req.Operation == "state" {
-		s.highestBid = req.HighestBid
-		s.highestBidder = req.Winner
-		s.isAuctionOver = req.IsAuctionOver
+	// Simple replication - update state from leader
+	if b_req.Senderport != gangy.port {
+		fmt.Printf("Received replication from %s\n", b_req.Senderport)
 	}
 
-	return &proto.ReplicationResponse{Success: true}, nil
+	return &proto.BullyResponse{AlphaPort: gangy.leaderPort}, nil
 }
 
-func (s *AuctionServer) replicateBidToReplicas(clientID string, amount int64) {
-	replicationReq := &proto.ReplicationRequest{
-		Operation: "bid",
-		ClientID:  clientID,
-		Amount:    amount,
-	}
+func (gangy *gangnamStyle) forwardToAlpha(req *proto.Request) {
+	fmt.Println("Forwarding to alpha nodes...")
 
-	successfulReplications := 0
-	for port, client := range s.replicas {
-		go func(p string, c proto.AuctionServiceClient) {
+	successCount := 0
+	for port, client := range gangy.replicas {
+		go func(p string, c proto.GangnamStyleClient) {
 			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 			defer cancel()
 
-			_, err := c.Replicate(ctx, replicationReq)
+			_, err := c.Bully(ctx, &proto.BullyRequest{Senderport: gangy.port})
 			if err != nil {
-				log.Printf("Could not replicate to %s - marking as failed", p)
+				fmt.Printf("Failed to forward to %s: %v\n", p, err)
 				// Mark this node as failed
-				s.mu.Lock()
-				delete(s.replicas, p)
-				if conn, exists := s.nodeConnections[p]; exists {
+				gangy.mu.Lock()
+				delete(gangy.replicas, p)
+				if conn, exists := gangy.nodeConnections[p]; exists {
 					conn.Close()
-					delete(s.nodeConnections, p)
+					delete(gangy.nodeConnections, p)
 				}
-				s.mu.Unlock()
+				gangy.mu.Unlock()
 			} else {
-				successfulReplications++
+				successCount++
+				fmt.Printf("Successfully forwarded to %s\n", p)
 			}
 		}(port, client)
 	}
 
-	log.Printf("Replication: %d/%d successful", successfulReplications, len(s.replicas))
+	fmt.Printf("Replication: %d/%d successful\n", successCount, len(gangy.replicas))
 }
 
-func (s *AuctionServer) replicateAuctionEnd() {
-	replicationReq := &proto.ReplicationRequest{
-		Operation:     "state",
-		HighestBid:    s.highestBid,
-		Winner:        s.highestBidder,
-		IsAuctionOver: true,
-	}
-
-	for port, client := range s.replicas {
-		go func(p string, c proto.AuctionServiceClient) {
-			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-			defer cancel()
-
-			c.Replicate(ctx, replicationReq)
-		}(port, client)
-	}
-}
-
-func (s *AuctionServer) monitorAuctionTimeout() {
+func (gangy *gangnamStyle) monitorAuctionTimeout() {
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		s.mu.Lock()
-		elapsed := time.Since(s.auctionStartTime)
-		if !s.isAuctionOver && elapsed >= s.auctionDuration {
-			s.isAuctionOver = true
-			log.Printf("Auction ended! Winner: %s with bid: %d", s.highestBidder, s.highestBid)
-			if s.isLeader {
-				s.replicateAuctionEnd()
-			}
+		gangy.mu.Lock()
+		elapsed := time.Since(gangy.auctionStartTime)
+		if !gangy.isAuctionOver && elapsed >= gangy.auctionDuration {
+			gangy.isAuctionOver = true
+			fmt.Printf("Auction ended! Winner: %s with bid: %d\n", gangy.highestBidder, gangy.highestBid)
 		}
-		s.mu.Unlock()
+		gangy.mu.Unlock()
 	}
 }

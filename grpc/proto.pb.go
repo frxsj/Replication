@@ -7,12 +7,11 @@
 package proto
 
 import (
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -22,7 +21,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type BidRequest struct {
+type Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ClientID      string                 `protobuf:"bytes,1,opt,name=clientID,proto3" json:"clientID,omitempty"`
 	Amount        int64                  `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"`
@@ -30,20 +29,20 @@ type BidRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BidRequest) Reset() {
-	*x = BidRequest{}
+func (x *Request) Reset() {
+	*x = Request{}
 	mi := &file_grpc_proto_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BidRequest) String() string {
+func (x *Request) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BidRequest) ProtoMessage() {}
+func (*Request) ProtoMessage() {}
 
-func (x *BidRequest) ProtoReflect() protoreflect.Message {
+func (x *Request) ProtoReflect() protoreflect.Message {
 	mi := &file_grpc_proto_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -55,46 +54,46 @@ func (x *BidRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BidRequest.ProtoReflect.Descriptor instead.
-func (*BidRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use Request.ProtoReflect.Descriptor instead.
+func (*Request) Descriptor() ([]byte, []int) {
 	return file_grpc_proto_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *BidRequest) GetClientID() string {
+func (x *Request) GetClientID() string {
 	if x != nil {
 		return x.ClientID
 	}
 	return ""
 }
 
-func (x *BidRequest) GetAmount() int64 {
+func (x *Request) GetAmount() int64 {
 	if x != nil {
 		return x.Amount
 	}
 	return 0
 }
 
-type ResultRequest struct {
+type PlsResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ClientID      string                 `protobuf:"bytes,1,opt,name=clientID,proto3" json:"clientID,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ResultRequest) Reset() {
-	*x = ResultRequest{}
+func (x *PlsResult) Reset() {
+	*x = PlsResult{}
 	mi := &file_grpc_proto_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ResultRequest) String() string {
+func (x *PlsResult) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ResultRequest) ProtoMessage() {}
+func (*PlsResult) ProtoMessage() {}
 
-func (x *ResultRequest) ProtoReflect() protoreflect.Message {
+func (x *PlsResult) ProtoReflect() protoreflect.Message {
 	mi := &file_grpc_proto_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -106,39 +105,39 @@ func (x *ResultRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ResultRequest.ProtoReflect.Descriptor instead.
-func (*ResultRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PlsResult.ProtoReflect.Descriptor instead.
+func (*PlsResult) Descriptor() ([]byte, []int) {
 	return file_grpc_proto_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ResultRequest) GetClientID() string {
+func (x *PlsResult) GetClientID() string {
 	if x != nil {
 		return x.ClientID
 	}
 	return ""
 }
 
-type BidResponse struct {
+type Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Ack           string                 `protobuf:"bytes,1,opt,name=ack,proto3" json:"ack,omitempty"` // "success", "fail", or "exception"
+	Ack           string                 `protobuf:"bytes,1,opt,name=ack,proto3" json:"ack,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BidResponse) Reset() {
-	*x = BidResponse{}
+func (x *Response) Reset() {
+	*x = Response{}
 	mi := &file_grpc_proto_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BidResponse) String() string {
+func (x *Response) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BidResponse) ProtoMessage() {}
+func (*Response) ProtoMessage() {}
 
-func (x *BidResponse) ProtoReflect() protoreflect.Message {
+func (x *Response) ProtoReflect() protoreflect.Message {
 	mi := &file_grpc_proto_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -150,42 +149,40 @@ func (x *BidResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BidResponse.ProtoReflect.Descriptor instead.
-func (*BidResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use Response.ProtoReflect.Descriptor instead.
+func (*Response) Descriptor() ([]byte, []int) {
 	return file_grpc_proto_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *BidResponse) GetAck() string {
+func (x *Response) GetAck() string {
 	if x != nil {
 		return x.Ack
 	}
 	return ""
 }
 
-type ResultResponse struct {
+type Outcome struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"` // "ongoing" or "finished"
-	Winner        string                 `protobuf:"bytes,2,opt,name=winner,proto3" json:"winner,omitempty"`
-	HighestBid    int64                  `protobuf:"varint,3,opt,name=highestBid,proto3" json:"highestBid,omitempty"`
-	IsAuctionOver bool                   `protobuf:"varint,4,opt,name=isAuctionOver,proto3" json:"isAuctionOver,omitempty"`
+	Winner        string                 `protobuf:"bytes,1,opt,name=winner,proto3" json:"winner,omitempty"`
+	WinnerAmount  int64                  `protobuf:"varint,2,opt,name=winnerAmount,proto3" json:"winnerAmount,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ResultResponse) Reset() {
-	*x = ResultResponse{}
+func (x *Outcome) Reset() {
+	*x = Outcome{}
 	mi := &file_grpc_proto_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ResultResponse) String() string {
+func (x *Outcome) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ResultResponse) ProtoMessage() {}
+func (*Outcome) ProtoMessage() {}
 
-func (x *ResultResponse) ProtoReflect() protoreflect.Message {
+func (x *Outcome) ProtoReflect() protoreflect.Message {
 	mi := &file_grpc_proto_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -197,65 +194,46 @@ func (x *ResultResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ResultResponse.ProtoReflect.Descriptor instead.
-func (*ResultResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use Outcome.ProtoReflect.Descriptor instead.
+func (*Outcome) Descriptor() ([]byte, []int) {
 	return file_grpc_proto_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ResultResponse) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-func (x *ResultResponse) GetWinner() string {
+func (x *Outcome) GetWinner() string {
 	if x != nil {
 		return x.Winner
 	}
 	return ""
 }
 
-func (x *ResultResponse) GetHighestBid() int64 {
+func (x *Outcome) GetWinnerAmount() int64 {
 	if x != nil {
-		return x.HighestBid
+		return x.WinnerAmount
 	}
 	return 0
 }
 
-func (x *ResultResponse) GetIsAuctionOver() bool {
-	if x != nil {
-		return x.IsAuctionOver
-	}
-	return false
-}
-
-type ReplicationRequest struct {
+type BullyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Operation     string                 `protobuf:"bytes,1,opt,name=operation,proto3" json:"operation,omitempty"` // "bid" or "state"
-	ClientID      string                 `protobuf:"bytes,2,opt,name=clientID,proto3" json:"clientID,omitempty"`
-	Amount        int64                  `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
-	HighestBid    int64                  `protobuf:"varint,4,opt,name=highestBid,proto3" json:"highestBid,omitempty"`
-	Winner        string                 `protobuf:"bytes,5,opt,name=winner,proto3" json:"winner,omitempty"`
-	IsAuctionOver bool                   `protobuf:"varint,6,opt,name=isAuctionOver,proto3" json:"isAuctionOver,omitempty"`
+	Senderport    string                 `protobuf:"bytes,1,opt,name=senderport,proto3" json:"senderport,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ReplicationRequest) Reset() {
-	*x = ReplicationRequest{}
+func (x *BullyRequest) Reset() {
+	*x = BullyRequest{}
 	mi := &file_grpc_proto_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ReplicationRequest) String() string {
+func (x *BullyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ReplicationRequest) ProtoMessage() {}
+func (*BullyRequest) ProtoMessage() {}
 
-func (x *ReplicationRequest) ProtoReflect() protoreflect.Message {
+func (x *BullyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_grpc_proto_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -267,74 +245,39 @@ func (x *ReplicationRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ReplicationRequest.ProtoReflect.Descriptor instead.
-func (*ReplicationRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use BullyRequest.ProtoReflect.Descriptor instead.
+func (*BullyRequest) Descriptor() ([]byte, []int) {
 	return file_grpc_proto_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ReplicationRequest) GetOperation() string {
+func (x *BullyRequest) GetSenderport() string {
 	if x != nil {
-		return x.Operation
+		return x.Senderport
 	}
 	return ""
 }
 
-func (x *ReplicationRequest) GetClientID() string {
-	if x != nil {
-		return x.ClientID
-	}
-	return ""
-}
-
-func (x *ReplicationRequest) GetAmount() int64 {
-	if x != nil {
-		return x.Amount
-	}
-	return 0
-}
-
-func (x *ReplicationRequest) GetHighestBid() int64 {
-	if x != nil {
-		return x.HighestBid
-	}
-	return 0
-}
-
-func (x *ReplicationRequest) GetWinner() string {
-	if x != nil {
-		return x.Winner
-	}
-	return ""
-}
-
-func (x *ReplicationRequest) GetIsAuctionOver() bool {
-	if x != nil {
-		return x.IsAuctionOver
-	}
-	return false
-}
-
-type ReplicationResponse struct {
+type BullyResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	AlphaPort     string                 `protobuf:"bytes,1,opt,name=alphaPort,proto3" json:"alphaPort,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ReplicationResponse) Reset() {
-	*x = ReplicationResponse{}
+func (x *BullyResponse) Reset() {
+	*x = BullyResponse{}
 	mi := &file_grpc_proto_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ReplicationResponse) String() string {
+func (x *BullyResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ReplicationResponse) ProtoMessage() {}
+func (*BullyResponse) ProtoMessage() {}
 
-func (x *ReplicationResponse) ProtoReflect() protoreflect.Message {
+func (x *BullyResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_grpc_proto_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -346,53 +289,44 @@ func (x *ReplicationResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ReplicationResponse.ProtoReflect.Descriptor instead.
-func (*ReplicationResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use BullyResponse.ProtoReflect.Descriptor instead.
+func (*BullyResponse) Descriptor() ([]byte, []int) {
 	return file_grpc_proto_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ReplicationResponse) GetSuccess() bool {
+func (x *BullyResponse) GetAlphaPort() string {
 	if x != nil {
-		return x.Success
+		return x.AlphaPort
 	}
-	return false
+	return ""
 }
 
 var File_grpc_proto_proto protoreflect.FileDescriptor
 
 const file_grpc_proto_proto_rawDesc = "" +
 	"\n" +
-	"\x10grpc/proto.proto\"@\n" +
-	"\n" +
-	"BidRequest\x12\x1a\n" +
+	"\x10grpc/proto.proto\"=\n" +
+	"\aRequest\x12\x1a\n" +
 	"\bclientID\x18\x01 \x01(\tR\bclientID\x12\x16\n" +
-	"\x06amount\x18\x02 \x01(\x03R\x06amount\"+\n" +
-	"\rResultRequest\x12\x1a\n" +
-	"\bclientID\x18\x01 \x01(\tR\bclientID\"\x1f\n" +
-	"\vBidResponse\x12\x10\n" +
-	"\x03ack\x18\x01 \x01(\tR\x03ack\"\x86\x01\n" +
-	"\x0eResultResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status\x12\x16\n" +
-	"\x06winner\x18\x02 \x01(\tR\x06winner\x12\x1e\n" +
+	"\x06amount\x18\x02 \x01(\x03R\x06amount\"'\n" +
+	"\tPlsResult\x12\x1a\n" +
+	"\bclientID\x18\x01 \x01(\tR\bclientID\"\x1c\n" +
+	"\bResponse\x12\x10\n" +
+	"\x03ack\x18\x01 \x01(\tR\x03ack\"E\n" +
+	"\aOutcome\x12\x16\n" +
+	"\x06winner\x18\x01 \x01(\tR\x06winner\x12\"\n" +
+	"\fwinnerAmount\x18\x02 \x01(\x03R\fwinnerAmount\".\n" +
+	"\fBullyRequest\x12\x1e\n" +
 	"\n" +
-	"highestBid\x18\x03 \x01(\x03R\n" +
-	"highestBid\x12$\n" +
-	"\risAuctionOver\x18\x04 \x01(\bR\risAuctionOver\"\xc4\x01\n" +
-	"\x12ReplicationRequest\x12\x1c\n" +
-	"\toperation\x18\x01 \x01(\tR\toperation\x12\x1a\n" +
-	"\bclientID\x18\x02 \x01(\tR\bclientID\x12\x16\n" +
-	"\x06amount\x18\x03 \x01(\x03R\x06amount\x12\x1e\n" +
-	"\n" +
-	"highestBid\x18\x04 \x01(\x03R\n" +
-	"highestBid\x12\x16\n" +
-	"\x06winner\x18\x05 \x01(\tR\x06winner\x12$\n" +
-	"\risAuctionOver\x18\x06 \x01(\bR\risAuctionOver\"/\n" +
-	"\x13ReplicationResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess2\x95\x01\n" +
-	"\x0eAuctionService\x12 \n" +
-	"\x03Bid\x12\v.BidRequest\x1a\f.BidResponse\x12)\n" +
-	"\x06Result\x12\x0e.ResultRequest\x1a\x0f.ResultResponse\x126\n" +
-	"\tReplicate\x12\x13.ReplicationRequest\x1a\x14.ReplicationResponseB\x10Z\x0eITU/grpc/protob\x06proto3"
+	"senderport\x18\x01 \x01(\tR\n" +
+	"senderport\"-\n" +
+	"\rBullyResponse\x12\x1c\n" +
+	"\talphaPort\x18\x01 \x01(\tR\talphaPort2r\n" +
+	"\fGangnamStyle\x12\x1a\n" +
+	"\x03Bid\x12\b.Request\x1a\t.Response\x12\x1e\n" +
+	"\x06Result\x12\n" +
+	".PlsResult\x1a\b.Outcome\x12&\n" +
+	"\x05Bully\x12\r.BullyRequest\x1a\x0e.BullyResponseB\x10Z\x0eITU/grpc/protob\x06proto3"
 
 var (
 	file_grpc_proto_proto_rawDescOnce sync.Once
@@ -408,20 +342,20 @@ func file_grpc_proto_proto_rawDescGZIP() []byte {
 
 var file_grpc_proto_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_grpc_proto_proto_goTypes = []any{
-	(*BidRequest)(nil),          // 0: BidRequest
-	(*ResultRequest)(nil),       // 1: ResultRequest
-	(*BidResponse)(nil),         // 2: BidResponse
-	(*ResultResponse)(nil),      // 3: ResultResponse
-	(*ReplicationRequest)(nil),  // 4: ReplicationRequest
-	(*ReplicationResponse)(nil), // 5: ReplicationResponse
+	(*Request)(nil),       // 0: Request
+	(*PlsResult)(nil),     // 1: PlsResult
+	(*Response)(nil),      // 2: Response
+	(*Outcome)(nil),       // 3: Outcome
+	(*BullyRequest)(nil),  // 4: BullyRequest
+	(*BullyResponse)(nil), // 5: BullyResponse
 }
 var file_grpc_proto_proto_depIdxs = []int32{
-	0, // 0: AuctionService.Bid:input_type -> BidRequest
-	1, // 1: AuctionService.Result:input_type -> ResultRequest
-	4, // 2: AuctionService.Replicate:input_type -> ReplicationRequest
-	2, // 3: AuctionService.Bid:output_type -> BidResponse
-	3, // 4: AuctionService.Result:output_type -> ResultResponse
-	5, // 5: AuctionService.Replicate:output_type -> ReplicationResponse
+	0, // 0: GangnamStyle.Bid:input_type -> Request
+	1, // 1: GangnamStyle.Result:input_type -> PlsResult
+	4, // 2: GangnamStyle.Bully:input_type -> BullyRequest
+	2, // 3: GangnamStyle.Bid:output_type -> Response
+	3, // 4: GangnamStyle.Result:output_type -> Outcome
+	5, // 5: GangnamStyle.Bully:output_type -> BullyResponse
 	3, // [3:6] is the sub-list for method output_type
 	0, // [0:3] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
