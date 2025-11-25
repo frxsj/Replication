@@ -8,6 +8,7 @@ package proto
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -19,177 +20,177 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GangnamStyle_Bid_FullMethodName    = "/gangnamStyle/bid"
-	GangnamStyle_Result_FullMethodName = "/gangnamStyle/result"
-	GangnamStyle_Bully_FullMethodName  = "/gangnamStyle/bully"
+	AuctionService_Bid_FullMethodName       = "/AuctionService/Bid"
+	AuctionService_Result_FullMethodName    = "/AuctionService/Result"
+	AuctionService_Replicate_FullMethodName = "/AuctionService/Replicate"
 )
 
-// GangnamStyleClient is the client API for GangnamStyle service.
+// AuctionServiceClient is the client API for AuctionService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type GangnamStyleClient interface {
-	Bid(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
-	Result(ctx context.Context, in *PlsResult, opts ...grpc.CallOption) (*Outcome, error)
-	Bully(ctx context.Context, in *BullyRequest, opts ...grpc.CallOption) (*BullyResponse, error)
+type AuctionServiceClient interface {
+	Bid(ctx context.Context, in *BidRequest, opts ...grpc.CallOption) (*BidResponse, error)
+	Result(ctx context.Context, in *ResultRequest, opts ...grpc.CallOption) (*ResultResponse, error)
+	Replicate(ctx context.Context, in *ReplicationRequest, opts ...grpc.CallOption) (*ReplicationResponse, error)
 }
 
-type gangnamStyleClient struct {
+type auctionServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewGangnamStyleClient(cc grpc.ClientConnInterface) GangnamStyleClient {
-	return &gangnamStyleClient{cc}
+func NewAuctionServiceClient(cc grpc.ClientConnInterface) AuctionServiceClient {
+	return &auctionServiceClient{cc}
 }
 
-func (c *gangnamStyleClient) Bid(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
+func (c *auctionServiceClient) Bid(ctx context.Context, in *BidRequest, opts ...grpc.CallOption) (*BidResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Response)
-	err := c.cc.Invoke(ctx, GangnamStyle_Bid_FullMethodName, in, out, cOpts...)
+	out := new(BidResponse)
+	err := c.cc.Invoke(ctx, AuctionService_Bid_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *gangnamStyleClient) Result(ctx context.Context, in *PlsResult, opts ...grpc.CallOption) (*Outcome, error) {
+func (c *auctionServiceClient) Result(ctx context.Context, in *ResultRequest, opts ...grpc.CallOption) (*ResultResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Outcome)
-	err := c.cc.Invoke(ctx, GangnamStyle_Result_FullMethodName, in, out, cOpts...)
+	out := new(ResultResponse)
+	err := c.cc.Invoke(ctx, AuctionService_Result_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *gangnamStyleClient) Bully(ctx context.Context, in *BullyRequest, opts ...grpc.CallOption) (*BullyResponse, error) {
+func (c *auctionServiceClient) Replicate(ctx context.Context, in *ReplicationRequest, opts ...grpc.CallOption) (*ReplicationResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BullyResponse)
-	err := c.cc.Invoke(ctx, GangnamStyle_Bully_FullMethodName, in, out, cOpts...)
+	out := new(ReplicationResponse)
+	err := c.cc.Invoke(ctx, AuctionService_Replicate_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// GangnamStyleServer is the server API for GangnamStyle service.
-// All implementations must embed UnimplementedGangnamStyleServer
+// AuctionServiceServer is the server API for AuctionService service.
+// All implementations must embed UnimplementedAuctionServiceServer
 // for forward compatibility.
-type GangnamStyleServer interface {
-	Bid(context.Context, *Request) (*Response, error)
-	Result(context.Context, *PlsResult) (*Outcome, error)
-	Bully(context.Context, *BullyRequest) (*BullyResponse, error)
-	mustEmbedUnimplementedGangnamStyleServer()
+type AuctionServiceServer interface {
+	Bid(context.Context, *BidRequest) (*BidResponse, error)
+	Result(context.Context, *ResultRequest) (*ResultResponse, error)
+	Replicate(context.Context, *ReplicationRequest) (*ReplicationResponse, error)
+	mustEmbedUnimplementedAuctionServiceServer()
 }
 
-// UnimplementedGangnamStyleServer must be embedded to have
+// UnimplementedAuctionServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedGangnamStyleServer struct{}
+type UnimplementedAuctionServiceServer struct{}
 
-func (UnimplementedGangnamStyleServer) Bid(context.Context, *Request) (*Response, error) {
+func (UnimplementedAuctionServiceServer) Bid(context.Context, *BidRequest) (*BidResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Bid not implemented")
 }
-func (UnimplementedGangnamStyleServer) Result(context.Context, *PlsResult) (*Outcome, error) {
+func (UnimplementedAuctionServiceServer) Result(context.Context, *ResultRequest) (*ResultResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Result not implemented")
 }
-func (UnimplementedGangnamStyleServer) Bully(context.Context, *BullyRequest) (*BullyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Bully not implemented")
+func (UnimplementedAuctionServiceServer) Replicate(context.Context, *ReplicationRequest) (*ReplicationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Replicate not implemented")
 }
-func (UnimplementedGangnamStyleServer) mustEmbedUnimplementedGangnamStyleServer() {}
-func (UnimplementedGangnamStyleServer) testEmbeddedByValue()                      {}
+func (UnimplementedAuctionServiceServer) mustEmbedUnimplementedAuctionServiceServer() {}
+func (UnimplementedAuctionServiceServer) testEmbeddedByValue()                        {}
 
-// UnsafeGangnamStyleServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to GangnamStyleServer will
+// UnsafeAuctionServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AuctionServiceServer will
 // result in compilation errors.
-type UnsafeGangnamStyleServer interface {
-	mustEmbedUnimplementedGangnamStyleServer()
+type UnsafeAuctionServiceServer interface {
+	mustEmbedUnimplementedAuctionServiceServer()
 }
 
-func RegisterGangnamStyleServer(s grpc.ServiceRegistrar, srv GangnamStyleServer) {
-	// If the following call pancis, it indicates UnimplementedGangnamStyleServer was
+func RegisterAuctionServiceServer(s grpc.ServiceRegistrar, srv AuctionServiceServer) {
+	// If the following call pancis, it indicates UnimplementedAuctionServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&GangnamStyle_ServiceDesc, srv)
+	s.RegisterService(&AuctionService_ServiceDesc, srv)
 }
 
-func _GangnamStyle_Bid_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Request)
+func _AuctionService_Bid_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BidRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GangnamStyleServer).Bid(ctx, in)
+		return srv.(AuctionServiceServer).Bid(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GangnamStyle_Bid_FullMethodName,
+		FullMethod: AuctionService_Bid_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GangnamStyleServer).Bid(ctx, req.(*Request))
+		return srv.(AuctionServiceServer).Bid(ctx, req.(*BidRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GangnamStyle_Result_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PlsResult)
+func _AuctionService_Result_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResultRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GangnamStyleServer).Result(ctx, in)
+		return srv.(AuctionServiceServer).Result(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GangnamStyle_Result_FullMethodName,
+		FullMethod: AuctionService_Result_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GangnamStyleServer).Result(ctx, req.(*PlsResult))
+		return srv.(AuctionServiceServer).Result(ctx, req.(*ResultRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GangnamStyle_Bully_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BullyRequest)
+func _AuctionService_Replicate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReplicationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GangnamStyleServer).Bully(ctx, in)
+		return srv.(AuctionServiceServer).Replicate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GangnamStyle_Bully_FullMethodName,
+		FullMethod: AuctionService_Replicate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GangnamStyleServer).Bully(ctx, req.(*BullyRequest))
+		return srv.(AuctionServiceServer).Replicate(ctx, req.(*ReplicationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// GangnamStyle_ServiceDesc is the grpc.ServiceDesc for GangnamStyle service.
+// AuctionService_ServiceDesc is the grpc.ServiceDesc for AuctionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var GangnamStyle_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "gangnamStyle",
-	HandlerType: (*GangnamStyleServer)(nil),
+var AuctionService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "AuctionService",
+	HandlerType: (*AuctionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "bid",
-			Handler:    _GangnamStyle_Bid_Handler,
+			MethodName: "Bid",
+			Handler:    _AuctionService_Bid_Handler,
 		},
 		{
-			MethodName: "result",
-			Handler:    _GangnamStyle_Result_Handler,
+			MethodName: "Result",
+			Handler:    _AuctionService_Result_Handler,
 		},
 		{
-			MethodName: "bully",
-			Handler:    _GangnamStyle_Bully_Handler,
+			MethodName: "Replicate",
+			Handler:    _AuctionService_Replicate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

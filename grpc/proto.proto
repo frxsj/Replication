@@ -1,37 +1,43 @@
 syntax = "proto3";
 option go_package = "ITU/grpc/proto";
 
-message Request {
-    string clientID = 1; // ID to identify the bidder
-    int64 amount = 2; // How much they want to bid
+message BidRequest {
+    string clientID = 1;
+    int64 amount = 2;
 }
 
-message plsResult {
-    string clientID = 1; // ID to identify who wants to know
+message ResultRequest {
+    string clientID = 1;
 }
 
-message Response{
-    string ack = 1; // Success, fail or exception
+message BidResponse {
+    string ack = 1; // "success", "fail", or "exception"
 }
 
-message Outcome{
-    string winner = 1; // Who won the auction
-    int64 winnerAmount = 2; // The highest bid
+message ResultResponse {
+    string status = 1; // "ongoing" or "finished"
+    string winner = 2;
+    int64 highestBid = 3;
+    bool isAuctionOver = 4;
 }
 
-message BullyRequest{
-    string senderport = 1;
+message ReplicationRequest {
+    string operation = 1; // "bid" or "state"
+    string clientID = 2;
+    int64 amount = 3;
+    int64 highestBid = 4;
+    string winner = 5;
+    bool isAuctionOver = 6;
 }
 
-message BullyResponse{
-    string alphaPort = 1;
+message ReplicationResponse {
+    bool success = 1;
 }
 
-service gangnamStyle{
-    rpc bid(Request) returns (Response){};
-    rpc result(plsResult) returns (Outcome){};
-    rpc bully(BullyRequest) returns (BullyResponse){};
-    
+service AuctionService {
+    rpc Bid(BidRequest) returns (BidResponse);
+    rpc Result(ResultRequest) returns (ResultResponse);
+    rpc Replicate(ReplicationRequest) returns (ReplicationResponse);
 }
 // export PATH="$PATH:$(go env GOPATH)/bin"
 // protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative grpc/proto.proto
